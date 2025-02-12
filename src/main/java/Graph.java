@@ -1,27 +1,57 @@
 package main.java;
 
-import java.util.Dictionary;
-import java.util.Hashtable;
-import java.util.LinkedList;
-import java.util.List;
+import main.java.intefaces.IGraph;
 
-public class Graph<Vertex,E> {
+import java.util.*;
 
-    Dictionary<String, Vertex> vertices = new Hashtable<>();    private List<E> edges;
+public class Graph<EVertex,EEdge> implements IGraph<EVertex,EEdge> {
 
-    public void addVertex(Vertex v) {
+    public class Vertex {
+        String key;
+        EVertex data;
+
+        public Vertex(EVertex data) {
+            this.data = data;
+            this.key = this.generateKey();
+        }
+        public String getKey() {
+            return this.key;
+        }
+        private String generateKey(){
+            return "abc"; // TODO
+        }
+
+        public EVertex getData() {
+            return this.data;
+        }
+    }
+
+    private class Edge {
+        Vertex[] vertices;
+        String key;
+        EEdge data;
+    }
+
+    private final Map<String, Vertex> vertices = new HashMap<>();
+
+    @Override
+    public void addVertex(EVertex data) {
+        Vertex v = new Vertex(data);
         vertices.put(v.getKey(), v);
     }
 
-    public void addEdge(E e) {
+    @Override
+    public void addEdge(EEdge e) {
 
     }
 
+    @Override
     public Vertex findVertex(String key) {
         return vertices.get(key);
     }
 
-    public E findEdge(String key) {
+    @Override
+    public EEdge findEdge(String key) {
         return null;
     }
 

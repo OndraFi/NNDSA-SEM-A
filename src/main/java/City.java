@@ -1,11 +1,10 @@
 package main.java;
 
-public class City extends Vertex {
+public class City {
 
     private final String name;
 
     public City(String name) {
-        super();
         this.name = name;
     }
 
