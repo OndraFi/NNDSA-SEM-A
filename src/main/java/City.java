@@ -1,6 +1,8 @@
 package main.java;
 
-public class City {
+import main.java.graph.Vertex;
+
+public class City extends Vertex {
 
     private final String name;
 
