@@ -17,7 +17,7 @@ public abstract class Edge {
         return value;
     }
 
-    public Boolean getAccessible() {
+    public Boolean isAccessible() {
         return accessible;
     }
 
