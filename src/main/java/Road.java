@@ -5,8 +5,7 @@ import main.java.graph.Vertex;
 
 public class Road extends Edge {
 
-
-    public Road(Vertex[] vertices, String key, int value) {
-        super(vertices, key, value);
+    public Road(String vertex1Key, String vertex2Key, int value) {
+        super(vertex1Key, vertex2Key, value);
     }
 }
