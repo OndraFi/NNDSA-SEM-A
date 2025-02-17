@@ -9,8 +9,8 @@ import java.util.Random;
 
 public class Main {
 
-    private static final int PANEL_WIDTH = 1920;
-    private static final int PANEL_HEIGHT = 1080;
+    public static final int PANEL_WIDTH = 1920;
+    public static final int PANEL_HEIGHT = 1080;
 
     public static void main(String[] args) {
 //        Test<Integer> t = new Test<Integer>(4);
