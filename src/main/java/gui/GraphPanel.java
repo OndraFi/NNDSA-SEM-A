@@ -1,8 +1,9 @@
-package main.java;
+package main.java.gui;
 
+import main.java.City;
+import main.java.Road;
 import main.java.graph.Graph;
 import main.java.graph.Location;
-import main.java.graph.Vertex;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,7 +16,7 @@ import java.util.Map;
 
 public class GraphPanel extends JPanel {
     private Map<String, Point> positions;
-    private Graph<City, Road> graph;
+    private Graph<String, City, Road> graph;
     private double scaleX, scaleY;
     private double zoomFactor = 1.0;
     private double zoomMultiplier = 1.1;
@@ -23,7 +24,7 @@ public class GraphPanel extends JPanel {
     private Point dragEndScreen;
     private AffineTransform coordTransform = new AffineTransform();
 
-    public GraphPanel(Graph<City, Road> graph, Dimension size) {
+    public GraphPanel(Graph<String, City, Road> graph, Dimension size) {
         this.positions = new HashMap<>();
         this.graph = graph;
         this.setPreferredSize(size);
@@ -35,7 +36,8 @@ public class GraphPanel extends JPanel {
     private void calculateScaleFactors() {
         double maxX = 0;
         double maxY = 0;
-        for (City city : graph.getVertices()) {
+        for (Graph<String,City,Road>.Vertex vertex : graph.getVertices().values()) {
+            City city = vertex.getData();
             Location loc = city.getLocation();
             if (loc.getX() > maxX) maxX = loc.getX();
             if (loc.getY() > maxY) maxY = loc.getY();
@@ -48,11 +50,11 @@ public class GraphPanel extends JPanel {
         addMouseWheelListener(new MouseWheelListener() {
             public void mouseWheelMoved(MouseWheelEvent e) {
                 double delta = 0.05f * e.getPreciseWheelRotation();
-                double factor = Math.exp(-delta); // Výpočet faktoru zoomu
+                double factor = Math.exp(-delta); // Calculate zoom factor
                 double x = e.getX();
                 double y = e.getY();
 
-                // Aktualizace transformační matice pro zoom kolem kurzoru
+                // Update transformation matrix for zoom around cursor
                 AffineTransform at = new AffineTransform();
                 at.translate(x, y);
                 at.scale(factor, factor);
@@ -64,7 +66,6 @@ public class GraphPanel extends JPanel {
             }
         });
     }
-
 
     private void setupMousePan() {
         addMouseListener(new MouseAdapter() {
@@ -113,7 +114,7 @@ public class GraphPanel extends JPanel {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
 
-        // Aplikace zoom transformace
+        // Apply zoom transformation
         AffineTransform transform = new AffineTransform();
         transform.translate(getWidth() / 2, getHeight() / 2);
         transform.scale(zoomFactor, zoomFactor);
@@ -122,63 +123,34 @@ public class GraphPanel extends JPanel {
 
         g2.setTransform(transform);
 
-        // Nastavení velikosti fontu v závislosti na zoomFactor
-        int fontSize = (int) Math.max(10, 10 * zoomFactor);  // Základní velikost je 10, upravuje se s zoomem
+        // Set font size based on zoomFactor
+        int fontSize = (int) Math.max(10, 10 * zoomFactor);  // Base size is 10, adjusted with zoom
         g2.setFont(new Font("Arial", Font.PLAIN, fontSize));
 
-        // Kreslení vrcholů
-        for (City city : graph.getVertices()) {
+        // Draw vertices
+        for (Graph<String,City,Road>.Vertex vertex : graph.getVertices().values()) {
+            City city = vertex.getData();
             Location loc = city.getLocation();
             int x = (int) loc.getX();
             int y = (int) loc.getY();
-            int ovalSize = (int) Math.max(5, 5 * zoomFactor);  // Základní velikost je 5, upravuje se s zoomem
+            int ovalSize = (int) Math.max(5, 5 * zoomFactor);  // Base size is 5, adjusted with zoom
 
-            // Vrchol
+            // Vertex
             g2.fillOval(x - ovalSize / 2, y - ovalSize / 2, ovalSize, ovalSize);
             // Text
             g2.drawString(city.getName(), x - ovalSize / 2, y - ovalSize / 2 - fontSize / 2);
         }
 
-        // Kreslení hran
-        for (Road road : graph.getAllEdges()) {
-            City c1 = graph.findVertex(road.getVertex1Key());
-            City c2 = graph.findVertex(road.getVertex2Key());
+        // Draw edges
+        for (Graph<String,City,Road>.Edge edge : graph.getEdges()) {
+            City c1 = graph.getVertex(edge.getVertex1Key()).getData();
+            City c2 = graph.getVertex(edge.getVertex2Key()).getData();
             g2.drawLine((int) c1.getLocation().getX(), (int) c1.getLocation().getY(),
                     (int) c2.getLocation().getX(), (int) c2.getLocation().getY());
+            // add edge weight from edge.getData().getWeight()
+            int midX = ((int) c1.getLocation().getX() + (int) c2.getLocation().getX()) / 2;
+            int midY = ((int) c1.getLocation().getY() + (int) c2.getLocation().getY()) / 2;
+            g2.drawString(String.valueOf(edge.getData().getWeight()), midX, midY);
         }
     }
-
-
-
-//    @Override
-//    protected void paintComponent(Graphics g) {
-//        super.paintComponent(g);
-//        Graphics2D g2 = (Graphics2D) g;
-//
-//        // Kreslení hran
-//        for (Road road : graph.getAllEdges()) {
-//            City c1 = graph.findVertex(road.getVertex1Key());
-//            City c2 = graph.findVertex(road.getVertex2Key());
-//            Point p1 = new Point((int) (c1.getLocation().getX() * scaleX), (int) (c1.getLocation().getY() * scaleY));
-//            Point p2 = new Point((int) (c2.getLocation().getX() * scaleX), (int) (c2.getLocation().getY() * scaleY));
-//
-//            if (!road.isAccessible())
-//                g2.setColor(Color.RED);
-//            g2.drawLine(p1.x, p1.y, p2.x, p2.y);
-//            g2.setColor(Color.BLACK);
-//            int midX = (p1.x + p2.x) / 2;
-//            int midY = (p1.y + p2.y) / 2;
-//            g2.drawString(String.valueOf(road.getValue()) + " Km", midX, midY);
-//        }
-//
-//        // Kreslení vrcholů
-//        for (City city : graph.getVertices()) {
-//            Location loc = city.getLocation();
-//            int x = (int) (loc.getX() * scaleX);
-//            int y = (int) (loc.getY() * scaleY);
-//            g2.fillOval(x - 10, y - 10, 20, 20);
-//            g2.drawString(city.getName(), x - 20, y - 20);
-//        }
-//    }
-
 }

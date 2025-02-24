@@ -5,22 +5,22 @@ import main.java.Road;
 
 import java.util.*;
 
-public class Graph<TVertex, TEdge> {
+public class Graph<K,TVertex, TEdge> {
 
-    private final Map<String, Vertex> vertices = new HashMap<>();
-//    private final Map<String, List<TEdge>> adjacencyList = new HashMap<>();
+    private final Map<K, Vertex> vertices = new HashMap<>();
+    private final List<Edge> edges = new ArrayList<>();
 
-
-    private class Vertex<TVertex> {
-        private String key;
-        private TVertex data;
+    public class Vertex {
+        private final K key;
+        private final TVertex data;
         private final List<Edge>  adjencyList = new ArrayList<>();
 
-        public Vertex(TVertex data) {
+        public Vertex(K key, TVertex data) {
             this.data = data;
+            this.key = key;
         }
 
-        public String getKey() {
+        public K getKey() {
             return this.key;
         }
 
@@ -36,64 +36,46 @@ public class Graph<TVertex, TEdge> {
             return this.adjencyList;
         }
 
-        private String generateKey() {
-            return UUID.randomUUID().toString();
-        }
-
-
     }
-    private class Edge<TEdge> {
-        String vertex1Key;
-        String vertex2Key;
-        int weight;
-        Boolean accessible;
+    public class Edge {
+        K vertex1Key;
+        K vertex2Key;
         TEdge data;
 
-        public Edge(String vertex1Key,String  vertex2Key, int weight, TEdge data) {
+        public Edge(K vertex1Key,K vertex2Key, TEdge data) {
             this.vertex1Key = vertex1Key;
             this.vertex2Key = vertex2Key;
-            this.weight = weight;
-            this.accessible = true;
             this.data = data;
-        }
-
-        public int getWeight() {
-            return weight;
-        }
-
-        public Boolean isAccessible() {
-            return accessible;
         }
 
         public TEdge getData() {
             return data;
         }
 
-        public void blockEdge(){
-            this.accessible = false;
-        }
-
-        public void unblockEdge(){
-            this.accessible = true;
-        }
-
-        public String getVertex1Key() {
+        public K getVertex1Key() {
             return vertex1Key;
         }
 
-        public String getVertex2Key() {
+        public K getVertex2Key() {
             return vertex2Key;
         }
     }
 
-    public void addVertex(TVertex data) {
-        Vertex vertex = new Vertex(data);
-        vertices.put(vertex.getKey(), vertex);
-//        adjacencyList.put(vertex.getKey(), new ArrayList<TEdge>());
+    public Map<K, Vertex> getVertices() {
+        return vertices;
     }
 
-    public void addEdge(String vertex1Key, String vertex2Key, Integer weight, TEdge data) {
-        Edge edge = new Edge(vertex1Key, vertex2Key, weight, data);
+    public List<Edge> getEdges() {
+        return edges;
+    }
+
+    public void addVertex(K key, TVertex data) {
+        Vertex vertex = new Vertex(key,data);
+        vertices.put(vertex.getKey(), vertex);
+    }
+
+    public void addEdge(K vertex1Key, K vertex2Key, TEdge data) throws IllegalArgumentException {
+        Edge edge = new Edge(vertex1Key, vertex2Key, data);
         Vertex vertex1 = vertices.get(edge.getVertex1Key());
         Vertex vertex2 = vertices.get(edge.getVertex2Key());
 
@@ -103,16 +85,14 @@ public class Graph<TVertex, TEdge> {
 
         vertex1.addEdge(edge);
         vertex2.addEdge(edge);
-//        adjacencyList.get(vertex1.getKey()).add(edge);
-//        adjacencyList.get(vertex2.getKey()).add(edge);
+        edges.add(edge);
     }
 
-    public Vertex findVertex(String key) {
+    public Vertex getVertex(K key) {
         return vertices.get(key);
     }
 
-    public Edge findEdge(String vertexKey1, String vertexKey2) {
-
+    public TEdge getEdge(K vertexKey1, K vertexKey2) throws NoSuchElementException, IllegalArgumentException {
         Vertex vertex1 = findVertex(vertexKey1);
         Vertex vertex2 = findVertex(vertexKey2);
 
@@ -124,22 +104,14 @@ public class Graph<TVertex, TEdge> {
         for (Edge edge : edges) {
             if ((edge.getVertex1Key().equals(vertexKey1) && edge.getVertex2Key().equals(vertexKey2)) ||
                     (edge.getVertex1Key().equals(vertexKey2) && edge.getVertex2Key().equals(vertexKey1))) {
-                return edge;
+                return edge.getData();
             }
         }
 
-        return null;  // Vrátí null, pokud hrana nebyla nalezena
+        throw new NoSuchElementException("Edge not found between the specified vertices");
     }
 
-//    public ArrayList<TEdge> getAllEdges() {
-//        HashSet<TEdge> allEdges = new HashSet<>();  // Použití HashSetu zamezí duplikacím
-//        for (List<TEdge> edges : adjacencyList.values()) {
-//            allEdges.addAll(edges);
-//        }
-//        return new ArrayList<>(allEdges);
-//    }
-//
-//    public ArrayList<TVertex> getVertices() {
-//        return new ArrayList<>(vertices.values());
-//    }
+    private Vertex findVertex(K key) {
+        return vertices.get(key);
+    }
 }

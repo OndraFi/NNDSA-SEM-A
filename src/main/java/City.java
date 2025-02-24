@@ -1,7 +1,6 @@
 package main.java;
 
 import main.java.graph.Location;
-import main.java.graph.Vertex;
 
 public class City{
 
