@@ -1,4 +1,4 @@
-package main.java.graph;
+package main.java;
 
 public class Location {
     private int x;

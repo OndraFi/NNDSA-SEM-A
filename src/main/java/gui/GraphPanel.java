@@ -3,7 +3,7 @@ package main.java.gui;
 import main.java.City;
 import main.java.Road;
 import main.java.graph.Graph;
-import main.java.graph.Location;
+import main.java.Location;
 
 import javax.swing.*;
 import java.awt.*;

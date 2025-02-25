@@ -6,34 +6,6 @@ import java.util.*;
 
 public class DijkstraAlgorithm {
     // Dijkstra's algorithm to find shortest path from s to all other nodes
-//    public static void dijkstra(Graph<String, City, Road> graph, String startVertexKey) {
-//        Map<String, Integer> distances = new HashMap<>();
-//        Map<String, String> previous = new HashMap<>();
-//        PriorityQueue<Graph<String, City, Road>.Vertex> queue = new PriorityQueue<>(Comparator.comparingInt(vertex -> distances.getOrDefault(vertex.getKey(), Integer.MAX_VALUE)));
-//        for (Graph<String, City, Road>.Vertex vertex : graph.getVertices().values()) {
-//            distances.put(vertex.getKey(), Integer.MAX_VALUE);
-//            previous.put(vertex.getKey(), null);
-//        }
-//        distances.put(startVertexKey, 0);
-//        queue.add(graph.getVertex(startVertexKey));
-//
-//        while (!queue.isEmpty()) {
-//            Graph<String, City, Road>.Vertex u = queue.poll();
-//
-//            for (Graph<String, City, Road>.Edge edge : u.getAdjacentEdges()) {
-//                Graph<String, City, Road>.Vertex v = graph.getVertex(edge.getVertex2Key().equals(u.getKey()) ? edge.getVertex1Key() : edge.getVertex2Key());
-//                int alt = distances.get(u.getKey()) + edge.getData().getWeight();
-//                if (alt < distances.get(v.getKey())) {
-//                    distances.put(v.getKey(), alt);
-//                    previous.put(v.getKey(), u.getKey());
-//                    queue.add(v);
-//                }
-//            }
-//        }
-//
-//        for (Map.Entry<String, Integer> entry : distances.entrySet()) {
-//            System.out.println("Distance from " + graph.getVertex(startVertexKey).getData().getName() + " to " + graph.getVertex(entry.getKey()).getData().getName() + " is " + entry.getValue());        }
-//    }
 
     public static Map<String, Map<String, String>> dijkstra(Graph<String, City, Road> graph, String startVertexKey) {
         Map<String, Integer> distances = new HashMap<>();

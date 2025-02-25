@@ -1,7 +1,5 @@
 package main.java;
 
-import main.java.graph.Location;
-
 public class City{
 
     private final String name;
