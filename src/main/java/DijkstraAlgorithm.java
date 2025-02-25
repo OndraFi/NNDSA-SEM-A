@@ -13,36 +13,42 @@ public class DijkstraAlgorithm {
         Map<String, Map<String, String>> successors = new HashMap<>();
 
         // Priority queue to determine the vertex with the shortest distance
-        PriorityQueue<Graph<String, City, Road>.Vertex> queue = new PriorityQueue<>(Comparator.comparingInt(vertex -> distances.getOrDefault(vertex.getKey(), Integer.MAX_VALUE)));
+        PriorityQueue<String> queue = new PriorityQueue<>(Comparator.comparingInt(vertexKey -> distances.getOrDefault(vertexKey, Integer.MAX_VALUE)));
 
         // Initialize distances and previous
-        for (Graph<String, City, Road>.Vertex vertex : graph.getVertices().values()) {
-            distances.put(vertex.getKey(), Integer.MAX_VALUE);
-            previous.put(vertex.getKey(), null);
-            successors.put(vertex.getKey(), new HashMap<>());
+        for (String vertexKey : graph.getVertices().keySet()) {
+            distances.put(vertexKey, Integer.MAX_VALUE);
+            previous.put(vertexKey, null);
+            successors.put(vertexKey, new HashMap<>());
         }
 
         // Set the distance from the start vertex to itself to 0
         distances.put(startVertexKey, 0);
-        queue.add(graph.getVertex(startVertexKey));
+//        queue.add(graph.getVertex(startVertexKey));
+        queue.add(startVertexKey);
 
         while (!queue.isEmpty()) {
-            Graph<String, City, Road>.Vertex u = queue.poll();
+//            Graph<String, City, Road>.Vertex u = queue.poll();
+            String uKey = queue.poll();
+
 
             // Explore each adjacent vertex of u
-            for (Graph<String, City, Road>.Edge edge : u.getAdjacentEdges()) {
-                Graph<String, City, Road>.Vertex v = graph.getVertex(edge.getVertex2Key().equals(u.getKey()) ? edge.getVertex1Key() : edge.getVertex2Key());
-                int alt = distances.get(u.getKey()) + edge.getData().getWeight();
+            for (Map.Entry<String,Road> entry : graph.getVertexAdjacentEdges(uKey).entrySet()) {
+                String vKey = entry.getKey();
+                Road road = entry.getValue();
 
-                if (alt < distances.get(v.getKey())) {
-                    distances.put(v.getKey(), alt);
-                    previous.put(v.getKey(), u.getKey());
-                    queue.add(v);
+//                City v = graph.getVertex(vKey);
+                int alt = distances.get(uKey) + road.getWeight();
+
+                if (alt < distances.get(vKey)) {
+                    distances.put(vKey, alt);
+                    previous.put(vKey, uKey);
+                    queue.add(vKey);
 
                     // Update successors for each vertex
-                    successors.get(u.getKey()).put(v.getKey(), v.getKey());
+                    successors.get(uKey).put(vKey, vKey);
                     // Recursively update the successors path
-                    updateSuccessors(successors, previous, u, v);
+                    updateSuccessors(successors, previous, uKey, vKey);
                 }
             }
         }
@@ -50,11 +56,11 @@ public class DijkstraAlgorithm {
         return successors;
     }
 
-    private static void updateSuccessors(Map<String, Map<String, String>> successors, Map<String, String> previous, Graph<String, City, Road>.Vertex current, Graph<String, City, Road>.Vertex next) {
+    private static void updateSuccessors(Map<String, Map<String, String>> successors, Map<String, String> previous, String current, String next) {
         // Update the successors for the current path
         for (String key : successors.keySet()) {
-            if (successors.get(key).containsKey(current.getKey())) {
-                successors.get(key).put(next.getKey(), successors.get(key).get(current.getKey()));
+            if (successors.get(key).containsKey(current)) {
+                successors.get(key).put(next, successors.get(key).get(current));
             }
         }
     }
@@ -66,14 +72,14 @@ public class DijkstraAlgorithm {
         // Tisk hlavičky
         System.out.print("    ");
         for (String key : keys) {
-            City city = graph.getVertex(key).getData();
+            City city = graph.getVertex(key);
             System.out.print(String.format("%2s ", city.getName()));
         }
         System.out.println();
 
         // Tisk těla matice
         for (String key : keys) {
-            City rowCity = graph.getVertex(key).getData();
+            City rowCity = graph.getVertex(key);
             System.out.print(String.format("%2s ", rowCity.getName()));
             Map<String, String> row = successors.get(key);
             for (String colKey : keys) {
@@ -81,7 +87,7 @@ public class DijkstraAlgorithm {
                 if (successorKey == null) {
                     System.out.print(" . ");
                 } else {
-                    City colCity = graph.getVertex(successorKey).getData();
+                    City colCity = graph.getVertex(successorKey);
                     System.out.print(String.format("%2s ", colCity.getName()));
                 }
             }

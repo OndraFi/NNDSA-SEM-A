@@ -125,8 +125,10 @@ public class Gui extends JFrame {
         vertex1ComboBox.removeAllItems();
         vertex2ComboBox.removeAllItems();
         dijkstraComboBox.removeAllItems();
-        for (Graph<String,City,Road>.Vertex vertex : this.graph.getVertices().values()) {
-            ComboBoxItem item = new ComboBoxItem(vertex.getKey(), (vertex.getData()).getName());
+        for (Map.Entry<String, City> entry : this.graph.getVertices().entrySet()) {
+            String key = entry.getKey();
+            City city = entry.getValue();
+            ComboBoxItem item = new ComboBoxItem(key, city.getName());
             dijkstraComboBox.addItem(item);
             vertex1ComboBox.addItem(item);
             vertex2ComboBox.addItem(item);
@@ -151,6 +153,7 @@ public class Gui extends JFrame {
                 JOptionPane.showMessageDialog(this, "City added successfully!");
             }
             mapVerticesToComboBoxes();
+            repaint();
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Please enter valid coordinates", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -174,6 +177,7 @@ public class Gui extends JFrame {
             } else {
                 JOptionPane.showMessageDialog(this, "Cannot add edge between the same vertex.", "Error", JOptionPane.ERROR_MESSAGE);
             }
+            repaint();
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Please enter a valid weight.", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -200,11 +204,11 @@ public class Gui extends JFrame {
         Object[][] data = new Object[keys.size()][keys.size() + 1];
         int row = 0;
         for (String key : keys) {
-            data[row][0] = graph.getVertex(key).getData().getName();  // První sloupec s názvy měst
+            data[row][0] = graph.getVertex(key).getName();  // První sloupec s názvy měst
             int col = 1;
             for (String colKey : keys) {
                 String successorKey = successors.get(key).get(colKey);
-                data[row][col] = successorKey == null ? "" : graph.getVertex(successorKey).getData().getName();  // Zobrazí jména měst následníků
+                data[row][col] = successorKey == null ? "" : graph.getVertex(successorKey).getName();  // Zobrazí jména měst následníků
                 col++;
             }
             row++;
@@ -217,7 +221,7 @@ public class Gui extends JFrame {
         columns[0] = "City \\ To"; // Název prvního sloupce
         int index = 1;
         for (String key : keys) {
-            columns[index++] = graph.getVertex(key).getData().getName();
+            columns[index++] = graph.getVertex(key).getName();
         }
         return columns;
     }
@@ -228,6 +232,13 @@ public class Gui extends JFrame {
 
         Object[][] tableData = prepareTableData(successors, graph);
         String[] columnNames = prepareColumnNames(keys, graph);
+
+        if (dijkstraTable != null) {
+            dijkstraPanel.remove(dijsktraScrollPane);
+            dijkstraControlPanel.remove(dijkstraHeightSpinner);
+            remove(dijkstraControlPanel);
+            remove(dijkstraPanel);
+        }
 
         dijkstraTable = new JTable(tableData, columnNames);
         dijsktraScrollPane = new JScrollPane(dijkstraTable);
@@ -251,7 +262,8 @@ public class Gui extends JFrame {
 
         add(dijkstraControlPanel, BorderLayout.NORTH);
         add(dijkstraPanel, BorderLayout.SOUTH);
-        setVisible(true);
+        revalidate();
+        repaint();
     }
 
 

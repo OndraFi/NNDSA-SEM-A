@@ -10,7 +10,7 @@ public class Graph<K,TVertex, TEdge> {
     private final Map<K, Vertex> vertices = new HashMap<>();
     private final List<Edge> edges = new ArrayList<>();
 
-    public class Vertex {
+    private class Vertex {
         private final K key;
         private final TVertex data;
         private final List<Edge>  adjencyList = new ArrayList<>();
@@ -37,7 +37,7 @@ public class Graph<K,TVertex, TEdge> {
         }
 
     }
-    public class Edge {
+    private class Edge {
         K vertex1Key;
         K vertex2Key;
         TEdge data;
@@ -61,12 +61,20 @@ public class Graph<K,TVertex, TEdge> {
         }
     }
 
-    public Map<K, Vertex> getVertices() {
-        return vertices;
+    public Map<K, TVertex> getVertices() {
+        Map<K, TVertex> vertexDataMap = new HashMap<>();
+        for (Map.Entry<K, Vertex> entry : vertices.entrySet()) {
+            vertexDataMap.put(entry.getKey(), entry.getValue().getData());
+        }
+        return vertexDataMap;
     }
 
-    public List<Edge> getEdges() {
-        return edges;
+    public List<EdgeData<K, TEdge>> getEdges() {
+        List<EdgeData<K, TEdge>> edgeDataList = new ArrayList<>();
+        for (Edge edge : edges) {
+            edgeDataList.add(new EdgeData<>(edge.getVertex1Key(), edge.getVertex2Key(), edge.getData()));
+        }
+        return edgeDataList;
     }
 
     public void addVertex(K key, TVertex data) {
@@ -88,8 +96,21 @@ public class Graph<K,TVertex, TEdge> {
         edges.add(edge);
     }
 
-    public Vertex getVertex(K key) {
-        return vertices.get(key);
+    public TVertex getVertex(K key) {
+        return vertices.get(key).getData();
+    }
+
+    public Map<K,TEdge> getVertexAdjacentEdges(K key) {
+        Vertex vertex = vertices.get(key);
+        Map<K,TEdge> adjacentEdges = new HashMap<>();
+        for (Edge edge : vertex.getAdjacentEdges()) {
+            if (edge.getVertex1Key().equals(key)) {
+                adjacentEdges.put(edge.getVertex2Key(), edge.getData());
+            } else {
+                adjacentEdges.put(edge.getVertex1Key(), edge.getData());
+            }
+        }
+        return adjacentEdges;
     }
 
     public TEdge getEdge(K vertexKey1, K vertexKey2) throws NoSuchElementException, IllegalArgumentException {

@@ -2,6 +2,7 @@ package main.java.gui;
 
 import main.java.City;
 import main.java.Road;
+import main.java.graph.EdgeData;
 import main.java.graph.Graph;
 import main.java.Location;
 
@@ -36,8 +37,7 @@ public class GraphPanel extends JPanel {
     private void calculateScaleFactors() {
         double maxX = 0;
         double maxY = 0;
-        for (Graph<String,City,Road>.Vertex vertex : graph.getVertices().values()) {
-            City city = vertex.getData();
+        for (City city : graph.getVertices().values()) {
             Location loc = city.getLocation();
             if (loc.getX() > maxX) maxX = loc.getX();
             if (loc.getY() > maxY) maxY = loc.getY();
@@ -116,9 +116,9 @@ public class GraphPanel extends JPanel {
 
         // Apply zoom transformation
         AffineTransform transform = new AffineTransform();
-        transform.translate(getWidth() / 2, getHeight() / 2);
+        transform.translate(getWidth() / 2.0, getHeight() / 2.0);
         transform.scale(zoomFactor, zoomFactor);
-        transform.translate(-getWidth() / 2, -getHeight() / 2);
+        transform.translate(-getWidth() / 2.0, -getHeight() / 2.0);
         transform.concatenate(coordTransform);
 
         g2.setTransform(transform);
@@ -128,8 +128,7 @@ public class GraphPanel extends JPanel {
         g2.setFont(new Font("Arial", Font.PLAIN, fontSize));
 
         // Draw vertices
-        for (Graph<String,City,Road>.Vertex vertex : graph.getVertices().values()) {
-            City city = vertex.getData();
+        for (City city : graph.getVertices().values()) {
             Location loc = city.getLocation();
             int x = (int) loc.getX();
             int y = (int) loc.getY();
@@ -142,9 +141,9 @@ public class GraphPanel extends JPanel {
         }
 
         // Draw edges
-        for (Graph<String,City,Road>.Edge edge : graph.getEdges()) {
-            City c1 = graph.getVertex(edge.getVertex1Key()).getData();
-            City c2 = graph.getVertex(edge.getVertex2Key()).getData();
+        for (EdgeData<String,Road> edge : graph.getEdges()) {
+            City c1 = graph.getVertex(edge.getVertex1Key());
+            City c2 = graph.getVertex(edge.getVertex2Key());
             g2.drawLine((int) c1.getLocation().getX(), (int) c1.getLocation().getY(),
                     (int) c2.getLocation().getX(), (int) c2.getLocation().getY());
             // add edge weight from edge.getData().getWeight()
