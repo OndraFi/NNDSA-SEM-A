@@ -5,31 +5,26 @@ import main.java.gui.Gui;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class App {
     Graph<String, City, Road> graph;
-    private Gui gui;
 
     public App() {
         this.graph = new Graph<>();
-        generateAssigmentGraph();
+//        generateAssigmentGraph();
+    }
+
+    public static String generateKey() {
+        return UUID.randomUUID().toString();
     }
 
     public void openWindow() {
-        this.gui = new Gui(this.graph);
-    }
-
-    public void importFromCSV(String fileName) {
-
-    }
-
-    public void importFromFile(String fileName) {
-
-    }
-
-    public void exportToFile(String fileName) {
-
+        Gui gui = new Gui(this.graph);
     }
 
     private void generateAssigmentGraph(){

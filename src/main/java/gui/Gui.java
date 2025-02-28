@@ -4,25 +4,26 @@ import main.java.City;
 import main.java.DijkstraAlgorithm;
 import main.java.Road;
 import main.java.graph.Graph;
+import main.java.gui.components.CityForm;
+import main.java.gui.components.GraphIOForm;
+import main.java.gui.components.GraphPanel;
+import main.java.gui.components.RoadForm;
 
 import javax.swing.*;
 import java.awt.*;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
-import java.util.UUID;
 
 public class Gui extends JFrame {
     private static final int PANEL_WIDTH = 800;
     private static final int PANEL_HEIGHT = 800;
     private final Graph<String, City, Road> graph;
     private JPanel sidebar;
-    private JTextField cityNameField, xCoordField, yCoordField, weightField;
-    private JButton addCityButton;
-    private JComboBox<ComboBoxItem> vertex1ComboBox;
-    private JComboBox<ComboBoxItem> vertex2ComboBox;
-    private JButton addEdgeButton;
+
+    private CityForm cityForm;
+    private RoadForm roadForm;
+    private GraphIOForm graphIOForm;
 
     private JButton dijkstraButton;
     private JComboBox<ComboBoxItem> dijkstraComboBox;
@@ -37,7 +38,6 @@ public class Gui extends JFrame {
         this.graph = graph;
         initWindow();
         initializeComponents();
-        mapVerticesToComboBoxes();
         setVisible(true);
     }
 
@@ -56,6 +56,7 @@ public class Gui extends JFrame {
 
         addCityForm();
         addRoadForm();
+        addGraphIOForm();
         addDijkstraForm();
 
         GraphPanel graphPanel = new GraphPanel(this.graph, new Dimension((int) Math.round(PANEL_WIDTH * 0.8), (int) Math.round(PANEL_HEIGHT * 0.8)));
@@ -63,45 +64,31 @@ public class Gui extends JFrame {
     }
 
     private void addCityForm() {
-        JPanel formPanel = new JPanel(new GridLayout(0, 2));
-        cityNameField = new JTextField(20);
-        xCoordField = new JTextField(20);
-        yCoordField = new JTextField(20);
-
-        formPanel.add(new JLabel("City Name:"));
-        formPanel.add(cityNameField);
-        formPanel.add(new JLabel("X Coordinate:"));
-        formPanel.add(xCoordField);
-        formPanel.add(new JLabel("Y Coordinate:"));
-        formPanel.add(yCoordField);
-
-        addCityButton = new JButton("Add City");
-        addCityButton.addActionListener(e -> addCity());
-        formPanel.add(addCityButton);
-
-        sidebar.add(formPanel);
+        cityForm = new CityForm(this.graph);
+        cityForm.addCityListener(() -> {
+            roadForm.mapVerticesToComboBoxes();
+            repaint();
+        });
+        sidebar.add(cityForm);
         sidebar.revalidate();
         sidebar.repaint();
     }
 
     private void addRoadForm() {
-        JPanel formPanel = new JPanel(new GridLayout(0, 2));
-        vertex1ComboBox = new JComboBox<>();
-        vertex2ComboBox = new JComboBox<>();
-        weightField = new JTextField(5);
-        addEdgeButton = new JButton("Add Edge");
+        roadForm = new RoadForm(this.graph);
+        roadForm.addRoadListener(this::repaint);
+        sidebar.add(roadForm);
+        sidebar.revalidate();
+        sidebar.repaint();
+    }
 
-        formPanel.add(new JLabel("From:"));
-        formPanel.add(vertex1ComboBox);
-        formPanel.add(new JLabel("To:"));
-        formPanel.add(vertex2ComboBox);
-        formPanel.add(new JLabel("Weight:"));
-        formPanel.add(weightField);
-        formPanel.add(addEdgeButton);
-
-        addEdgeButton.addActionListener(e -> addEdge());
-
-        sidebar.add(formPanel);
+    private void addGraphIOForm() {
+        graphIOForm = new GraphIOForm(this.graph);
+        graphIOForm.addLoadListener(() -> {
+            roadForm.mapVerticesToComboBoxes();
+            repaint();
+        });
+        sidebar.add(graphIOForm);
         sidebar.revalidate();
         sidebar.repaint();
     }
@@ -119,72 +106,6 @@ public class Gui extends JFrame {
         sidebar.add(formPanel);
         sidebar.revalidate();
         sidebar.repaint();
-    }
-
-    private void mapVerticesToComboBoxes() {
-        vertex1ComboBox.removeAllItems();
-        vertex2ComboBox.removeAllItems();
-        dijkstraComboBox.removeAllItems();
-        for (Map.Entry<String, City> entry : this.graph.getVertices().entrySet()) {
-            String key = entry.getKey();
-            City city = entry.getValue();
-            ComboBoxItem item = new ComboBoxItem(key, city.getName());
-            dijkstraComboBox.addItem(item);
-            vertex1ComboBox.addItem(item);
-            vertex2ComboBox.addItem(item);
-        }
-    }
-
-    private void addCity() {
-        String cityName = cityNameField.getText();
-        String xCoord = xCoordField.getText();
-        String yCoord = yCoordField.getText();
-
-        try {
-            int x = Integer.parseInt(xCoord);
-            int y = Integer.parseInt(yCoord);
-
-            if (!cityName.isEmpty() && !xCoord.isEmpty() && !yCoord.isEmpty()) {
-                City city = new City(cityName, x, y);
-                graph.addVertex(generateKey(), city);  // Předpokládáme, že máme metodu getKey v třídě City
-                cityNameField.setText("");
-                xCoordField.setText("");
-                yCoordField.setText("");
-                JOptionPane.showMessageDialog(this, "City added successfully!");
-            }
-            mapVerticesToComboBoxes();
-            repaint();
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Please enter valid coordinates", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private void addEdge() {
-        ComboBoxItem item1 = (ComboBoxItem) vertex1ComboBox.getSelectedItem();
-        ComboBoxItem item2 = (ComboBoxItem) vertex2ComboBox.getSelectedItem();
-        if(item1 == null || item2 == null) {
-            JOptionPane.showMessageDialog(this, "Please select two vertices.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        String vertex1Key = item1.getKey();
-        String vertex2Key = item2.getKey();
-        String weightStr = weightField.getText();
-        try {
-            int weight = Integer.parseInt(weightStr);
-            if (!vertex1Key.equals(vertex2Key)) {
-                graph.addEdge(vertex1Key, vertex2Key, new Road(weight));
-                JOptionPane.showMessageDialog(this, "Edge added successfully!");
-            } else {
-                JOptionPane.showMessageDialog(this, "Cannot add edge between the same vertex.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-            repaint();
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Please enter a valid weight.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private String generateKey() {
-        return UUID.randomUUID().toString();
     }
 
     private void dijkstra(){

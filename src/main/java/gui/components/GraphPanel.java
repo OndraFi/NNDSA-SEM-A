@@ -1,4 +1,4 @@
-package main.java.gui;
+package main.java.gui.components;
 
 import main.java.City;
 import main.java.Road;
