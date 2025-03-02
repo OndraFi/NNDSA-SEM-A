@@ -12,6 +12,7 @@ import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,6 +25,7 @@ public class GraphPanel extends JPanel {
     private Point dragStartScreen;
     private Point dragEndScreen;
     private AffineTransform coordTransform = new AffineTransform();
+    private ArrayList<String> path;
 
     public GraphPanel(Graph<String, City, Road> graph, Dimension size) {
         this.positions = new HashMap<>();
@@ -32,6 +34,11 @@ public class GraphPanel extends JPanel {
         calculateScaleFactors();
         setupMouseWheelZoom();
         setupMousePan();
+    }
+
+    public void setPath(ArrayList<String> path) {
+        this.path = path;
+        repaint();
     }
 
     private void calculateScaleFactors() {
@@ -144,12 +151,28 @@ public class GraphPanel extends JPanel {
         for (EdgeData<String,Road> edge : graph.getEdges()) {
             City c1 = graph.getVertex(edge.getVertex1Key());
             City c2 = graph.getVertex(edge.getVertex2Key());
+            if(edge.getData().isAccessible()) {
+                g2.setColor(Color.BLACK);
+            } else {
+                g2.setColor(Color.RED);
+            }
             g2.drawLine((int) c1.getLocation().getX(), (int) c1.getLocation().getY(),
                     (int) c2.getLocation().getX(), (int) c2.getLocation().getY());
             // add edge weight from edge.getData().getWeight()
             int midX = ((int) c1.getLocation().getX() + (int) c2.getLocation().getX()) / 2;
             int midY = ((int) c1.getLocation().getY() + (int) c2.getLocation().getY()) / 2;
             g2.drawString(String.valueOf(edge.getData().getWeight()), midX, midY);
+        }
+
+        // Draw path in green
+        if (path != null && !path.isEmpty()) {
+            g2.setColor(Color.GREEN);
+            for (int i = 0; i < path.size() - 1; i++) {
+                City c1 = graph.getVertex(path.get(i));
+                City c2 = graph.getVertex(path.get(i + 1));
+                g2.drawLine((int) c1.getLocation().getX(), (int) c1.getLocation().getY(),
+                        (int) c2.getLocation().getX(), (int) c2.getLocation().getY());
+            }
         }
     }
 }

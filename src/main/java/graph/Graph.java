@@ -96,6 +96,31 @@ public class Graph<K,TVertex, TEdge> {
         edges.add(edge);
     }
 
+    public void removeEdge(K vertex1Key, K vertex2Key) {
+        Vertex vertex1 = vertices.get(vertex1Key);
+        Vertex vertex2 = vertices.get(vertex2Key);
+        if (vertex1 == null || vertex2 == null) {
+            throw new IllegalArgumentException("Both vertices must exist in the graph");
+        }
+
+        Edge edgeToRemove = null;
+        for (Edge edge : vertex1.getAdjacentEdges()) {
+            if ((edge.getVertex1Key().equals(vertex1Key) && edge.getVertex2Key().equals(vertex2Key)) ||
+                    (edge.getVertex1Key().equals(vertex2Key) && edge.getVertex2Key().equals(vertex1Key))) {
+                edgeToRemove = edge;
+                break;
+            }
+        }
+
+        if (edgeToRemove == null) {
+            throw new NoSuchElementException("Edge not found between the specified vertices");
+        }
+
+        vertex1.getAdjacentEdges().remove(edgeToRemove);
+        vertex2.getAdjacentEdges().remove(edgeToRemove);
+        edges.remove(edgeToRemove);
+    }
+
     public TVertex getVertex(K key) {
         return vertices.get(key).getData();
     }

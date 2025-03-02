@@ -17,21 +17,20 @@ public class GraphIOForm extends JPanel {
     private final GraphIO graphIO;
     private final JButton loadButton;
     private final JButton saveButton;
-    private java.util.List<Runnable> loadListeners = new ArrayList<>();
+    private final java.util.List<Runnable> loadListeners = new ArrayList<>();
 
     public GraphIOForm(Graph<String, City, Road> graph) {
         this.graph = graph;
         this.graphIO = new GraphIO(this.graph);
-        this.setLayout(new FlowLayout());
-
+        setLayout(new GridLayout(0, 2));
         loadButton = new JButton("Load Graph");
         saveButton = new JButton("Save Graph");
 
         loadButton.addActionListener(new LoadButtonListener());
         saveButton.addActionListener(new SaveButtonListener());
 
-        this.add(loadButton);
-        this.add(saveButton);
+        add(loadButton);
+        add(saveButton);
     }
 
     public void addLoadListener(Runnable listener) {

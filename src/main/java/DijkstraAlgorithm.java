@@ -4,7 +4,7 @@ import main.java.graph.Graph;
 
 import java.util.*;
 
-public class DijkstraAlgorithm {
+public class DijkstraAlgorithm extends Graph {
     // Dijkstra's algorithm to find shortest path from s to all other nodes
 
     public static Map<String, Map<String, String>> dijkstra(Graph<String, City, Road> graph, String startVertexKey) {
@@ -37,13 +37,19 @@ public class DijkstraAlgorithm {
                 String vKey = entry.getKey();
                 Road road = entry.getValue();
 
+                if(!road.isAccessible())
+                    continue;
+
 //                City v = graph.getVertex(vKey);
                 int alt = distances.get(uKey) + road.getWeight();
 
                 if (alt < distances.get(vKey)) {
                     distances.put(vKey, alt);
                     previous.put(vKey, uKey);
-                    queue.add(vKey);
+                    if (!queue.contains(vKey)) {
+                        queue.add(vKey);
+                    }
+//                    queue.add(vKey);
 
                     // Update successors for each vertex
                     successors.get(uKey).put(vKey, vKey);
@@ -53,6 +59,8 @@ public class DijkstraAlgorithm {
             }
         }
         printSuccessorMatrix(successors, graph);
+
+//        printSuccessorMatrixPrevious(previous, graph);
         return successors;
     }
 
@@ -96,8 +104,34 @@ public class DijkstraAlgorithm {
     }
 
 
-
-
+//    public static void printSuccessorMatrixPrevious(Map<String, String> previous, Graph<String, City, Road> graph) {
+//        List<String> keys = new ArrayList<>(graph.getVertices().keySet());
+//        Collections.sort(keys);
+//
+//        // Tisk hlavičky
+//        System.out.print("    ");
+//        for (String key : keys) {
+//            City city = graph.getVertex(key);
+//            System.out.print(String.format("%2s ", city.getName()));
+//        }
+//        System.out.println();
+//
+//        // Tisk těla matice
+//        for (String key : keys) {
+//            City rowCity = graph.getVertex(key);
+//            System.out.print(String.format("%2s ", rowCity.getName()));
+//            for (String colKey : keys) {
+//                String predecessorKey = previous.get(colKey);
+//                if (predecessorKey == null || !predecessorKey.equals(key)) {
+//                    System.out.print(" . ");
+//                } else {
+//                    City colCity = graph.getVertex(colKey);
+//                    System.out.print(String.format("%2s ", colCity.getName()));
+//                }
+//            }
+//            System.out.println();
+//        }
+//    }
 
 
 }

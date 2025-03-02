@@ -1,6 +1,8 @@
 package main.java.gui;
 
-public class ComboBoxItem {
+import main.java.DijkstraAlgorithm;
+
+public class ComboBoxItem extends DijkstraAlgorithm {
     private String key;
     private String name;
 
