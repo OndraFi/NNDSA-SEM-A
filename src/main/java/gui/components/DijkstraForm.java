@@ -2,6 +2,7 @@ package main.java.gui.components;
 
 import main.java.City;
 import main.java.DijkstraAlgorithm;
+import main.java.DijkstraResult;
 import main.java.Road;
 import main.java.graph.Graph;
 import main.java.gui.ComboBoxItem;
@@ -11,12 +12,13 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 public class DijkstraForm extends JPanel {
 
     private JComboBox<ComboBoxItem> dijkstraComboBox, dijkstraToComboBox;
     private final Graph<String, City, Road> graph;
-    private Map<String, Map<String, String>> successors;
+    private DijkstraResult dijsktraResult;
     private GraphPanel graphPanel;
 
     public DijkstraForm(Graph<String, City, Road> graph, GraphPanel graphPanel) {
@@ -35,7 +37,7 @@ public class DijkstraForm extends JPanel {
     }
 
     public void changesWareMadeInGraph() {
-        this.successors = null;
+        this.dijsktraResult = null;
     }
 
     private void initComponent() {
@@ -62,8 +64,8 @@ public class DijkstraForm extends JPanel {
             JOptionPane.showMessageDialog(this, "Please select a starting vertex.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        Map<String, Map<String, String>> successors = DijkstraAlgorithm.dijkstra(graph, startVertex.getKey());
-        this.successors = successors;
+        dijsktraResult = DijkstraAlgorithm.dijkstra(graph, startVertex.getKey());
+        Map<String, Map<String,String>> successors = dijsktraResult.getSuccessors();
         displayMatrix(successors, this.graph);
     }
 
@@ -74,7 +76,8 @@ public class DijkstraForm extends JPanel {
             JOptionPane.showMessageDialog(this, "Please select both a starting and ending vertex.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        if(this.successors == null) {
+        Map<String, Map<String,String>> successors = dijsktraResult.getSuccessors();
+        if(successors == null) {
             JOptionPane.showMessageDialog(this, "Spusťte nejdřív dijkstrův algoritmus pro graf", "Error", JOptionPane.ERROR_MESSAGE);
             return;        }
         ArrayList<String> path = new ArrayList<>();
@@ -121,6 +124,18 @@ public class DijkstraForm extends JPanel {
         return columns;
     }
 
+    private Object[][] prepareSecondTableData(Map<String, String> previous, Graph<String, City, Road> graph) {
+        Set<String> vertexKeys = graph.getVertices().keySet();
+        Object[][] data = new Object[vertexKeys.size()][2];
+        int index = 0;
+        for (String key : vertexKeys) {
+            data[index][0] = key;
+            data[index][1] = previous.get(key);
+            index++;
+        }
+        return data;
+    }
+
     private void displayMatrix(Map<String, Map<String, String>> successors, Graph<String, City, Road> graph) {
         ArrayList<String> keys = new ArrayList<>(graph.getVertices().keySet());
         Collections.sort(keys);
@@ -135,6 +150,16 @@ public class DijkstraForm extends JPanel {
         JFrame frame = new JFrame("Dijkstra Result");
         frame.setLayout(new BorderLayout());
         frame.add(dijsktraScrollPane, BorderLayout.CENTER);
+
+        // Add second table for previous data
+        Object[][] secondTableData = prepareSecondTableData(dijsktraResult.getPrevious(), graph);
+        String[] secondColumnNames = {"Vertex", "Previous"};
+        JTable secondTable = new JTable(secondTableData, secondColumnNames);
+        JScrollPane secondScrollPane = new JScrollPane(secondTable);
+        secondTable.setFillsViewportHeight(true);
+
+        frame.add(secondScrollPane, BorderLayout.SOUTH);
+
         frame.setSize(800, 600);
         frame.setVisible(true);
     }

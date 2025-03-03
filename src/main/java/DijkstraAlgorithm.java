@@ -1,13 +1,11 @@
 package main.java;
 
 import main.java.graph.Graph;
-
 import java.util.*;
 
-public class DijkstraAlgorithm extends Graph {
-    // Dijkstra's algorithm to find shortest path from s to all other nodes
+public class DijkstraAlgorithm {
 
-    public static Map<String, Map<String, String>> dijkstra(Graph<String, City, Road> graph, String startVertexKey) {
+    public static DijkstraResult dijkstra(Graph<String, City, Road> graph, String startVertexKey) {
         Map<String, Integer> distances = new HashMap<>();
         Map<String, String> previous = new HashMap<>();
         Map<String, Map<String, String>> successors = new HashMap<>();
@@ -24,11 +22,9 @@ public class DijkstraAlgorithm extends Graph {
 
         // Set the distance from the start vertex to itself to 0
         distances.put(startVertexKey, 0);
-//        queue.add(graph.getVertex(startVertexKey));
         queue.add(startVertexKey);
 
         while (!queue.isEmpty()) {
-//            Graph<String, City, Road>.Vertex u = queue.poll();
             String uKey = queue.poll();
 
 
@@ -40,7 +36,6 @@ public class DijkstraAlgorithm extends Graph {
                 if(!road.isAccessible())
                     continue;
 
-//                City v = graph.getVertex(vKey);
                 int alt = distances.get(uKey) + road.getWeight();
 
                 if (alt < distances.get(vKey)) {
@@ -49,7 +44,6 @@ public class DijkstraAlgorithm extends Graph {
                     if (!queue.contains(vKey)) {
                         queue.add(vKey);
                     }
-//                    queue.add(vKey);
 
                     // Update successors for each vertex
                     successors.get(uKey).put(vKey, vKey);
@@ -59,9 +53,8 @@ public class DijkstraAlgorithm extends Graph {
             }
         }
         printSuccessorMatrix(successors, graph);
-
-//        printSuccessorMatrixPrevious(previous, graph);
-        return successors;
+        printSecondTable(previous,graph);
+        return new DijkstraResult(previous, successors);
     }
 
     private static void updateSuccessors(Map<String, Map<String, String>> successors, Map<String, String> previous, String current, String next) {
@@ -70,6 +63,17 @@ public class DijkstraAlgorithm extends Graph {
             if (successors.get(key).containsKey(current)) {
                 successors.get(key).put(next, successors.get(key).get(current));
             }
+        }
+    }
+
+    public static void printSecondTable(Map<String, String> previous, Graph<String, City, Road> graph) {
+        Set<String> vertexKeys = graph.getVertices().keySet();
+        for(String key: vertexKeys) {
+            System.out.print(key);
+        }
+        System.out.println();
+        for (String key : vertexKeys) {
+            System.out.print(previous.get(key));
         }
     }
 
@@ -102,36 +106,5 @@ public class DijkstraAlgorithm extends Graph {
             System.out.println();
         }
     }
-
-
-//    public static void printSuccessorMatrixPrevious(Map<String, String> previous, Graph<String, City, Road> graph) {
-//        List<String> keys = new ArrayList<>(graph.getVertices().keySet());
-//        Collections.sort(keys);
-//
-//        // Tisk hlavičky
-//        System.out.print("    ");
-//        for (String key : keys) {
-//            City city = graph.getVertex(key);
-//            System.out.print(String.format("%2s ", city.getName()));
-//        }
-//        System.out.println();
-//
-//        // Tisk těla matice
-//        for (String key : keys) {
-//            City rowCity = graph.getVertex(key);
-//            System.out.print(String.format("%2s ", rowCity.getName()));
-//            for (String colKey : keys) {
-//                String predecessorKey = previous.get(colKey);
-//                if (predecessorKey == null || !predecessorKey.equals(key)) {
-//                    System.out.print(" . ");
-//                } else {
-//                    City colCity = graph.getVertex(colKey);
-//                    System.out.print(String.format("%2s ", colCity.getName()));
-//                }
-//            }
-//            System.out.println();
-//        }
-//    }
-
 
 }

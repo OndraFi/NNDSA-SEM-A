@@ -17,7 +17,8 @@ public class App {
 
     public App() {
         this.graph = new Graph<>();
-        generateGraph(graph);
+//        generateGraph(graph);
+        generateAssigmentGraph();
     }
 
     public static String generateKey() {
