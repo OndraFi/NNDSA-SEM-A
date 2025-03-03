@@ -18,7 +18,7 @@ public class App {
     public App() {
         this.graph = new Graph<>();
 //        generateGraph(graph);
-        generateAssigmentGraph();
+//        generateAssigmentGraph();
     }
 
     public static String generateKey() {
@@ -102,28 +102,34 @@ public class App {
     }
 
     public void generateGraph(Graph<String, City, Road> graph) {
-        Random rand = new Random();
-        int numberOfVertices = 50;
-        int numberOfEdges = 100;
+        int gridSize = 8; // 10x10 grid
+        int maxWeight = 100;
 
-        // Create 20 cities with random coordinates
-        for (int i = 1; i <= numberOfVertices; i++) {
-            String key = "City" + i;
-            int x = rand.nextInt(1000);  // Random x coordinate (0-1000)
-            int y = rand.nextInt(1000);  // Random y coordinate (0-1000)
-            City city = new City(key, x, y);
-            graph.addVertex(key, city);
+        // Create cities in a grid
+        for (int i = 0; i < gridSize; i++) {
+            for (int j = 0; j < gridSize; j++) {
+                String key = "" + (i * gridSize + j + 1);
+                City city = new City(key, i * 100, j * 100); // Assuming 100 units distance between cities
+                graph.addVertex(key, city);
+            }
         }
 
-        // Create 30 roads between randomly selected cities with random weights
-        for (int i = 0; i < numberOfEdges; i++) {
-            int vertexIndex1 = rand.nextInt(numberOfVertices) + 1;
-            int vertexIndex2 = rand.nextInt(numberOfVertices) + 1;
-            String vertexKey1 = "City" + vertexIndex1;
-            String vertexKey2 = "City" + vertexIndex2;
-            int weight = rand.nextInt(50) + 1;  // Weight from 1 to 50
-            Road road = new Road(weight);
-            graph.addEdge(vertexKey1, vertexKey2, road);
+        // Create roads with random weights
+        Random rand = new Random();
+        for (int i = 0; i < gridSize; i++) {
+            for (int j = 0; j < gridSize; j++) {
+                String currentCity = "" + (i * gridSize + j + 1);
+                if (i < gridSize - 1) { // Vertical road
+                    String downCity = "" + ((i + 1) * gridSize + j + 1);
+                    int weight = rand.nextInt(maxWeight) + 1;
+                    graph.addEdge(currentCity, downCity, new Road(weight));
+                }
+                if (j < gridSize - 1) { // Horizontal road
+                    String rightCity = "" + (i * gridSize + j + 2);
+                    int weight = rand.nextInt(maxWeight) + 1;
+                    graph.addEdge(currentCity, rightCity, new Road(weight));
+                }
+            }
         }
     }
 
